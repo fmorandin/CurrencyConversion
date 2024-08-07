@@ -6,6 +6,8 @@
 //
 
 import UIKit
+import os
+import Combine
 
 class CurrencyListViewController: UIViewController {
 
@@ -31,13 +33,48 @@ class CurrencyListViewController: UIViewController {
 
     private lazy var currenciesTableView = UITableView(frame: view.bounds, style: .plain)
 
+    // MARK: - Private Variables
+
+    private let logger = Logger(
+        subsystem: Bundle.main.bundleIdentifier!,
+        category: String(describing: CurrencyListViewController.self)
+    )
+
+    private let viewModel: CurrencyListViewModelProtocol
+
+    private var cancellables = Set<AnyCancellable>()
+
+    private var currenciesRates = [String: Double]()
+    private var currenciesKeys = [String]()
+    private var currenciesValues = [Double]()
+
+    // MARK: - Init
+
+    init(viewModel: CurrencyListViewModelProtocol = CurrencyListViewModel()) {
+
+        self.viewModel = viewModel
+
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     // MARK: - View Lifecycle
+
+    override func viewWillAppear(_ animated: Bool) {
+
+        viewModel.fetchCurrencies()
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
         setupSubviews()
         setupConstraints()
+
+        setupObservers()
 
         view.backgroundColor = .appColor(.backgroundColor)
     }
@@ -76,6 +113,28 @@ class CurrencyListViewController: UIViewController {
             currenciesTableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20)
         ])
     }
+
+    private func setupObservers() {
+
+        viewModel.currencyDataPublisher.sink { [weak self] completion in
+            switch completion {
+            case .failure(let error):
+                self?.logger.error("\(error)")
+            case .finished:
+                self?.logger.info("💶 Currency info received correctly from ViewModel")
+            }
+        } receiveValue: { [weak self] result in
+            self?.currenciesRates = result.rates
+            self?.currenciesKeys = Array(result.rates.keys)
+            self?.currenciesValues = Array(result.rates.values)
+            DispatchQueue.main.async { [weak self] in
+                self?.currenciesTableView.reloadData()
+            }
+
+        }
+        .store(in: &cancellables)
+    }
+
 }
 
 // MARK: - Extensions
@@ -84,13 +143,14 @@ class CurrencyListViewController: UIViewController {
 extension CurrencyListViewController: UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        10
+        currenciesRates.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = currenciesTableView.dequeueReusableCell(withIdentifier: "currencyCell", for: indexPath) as! CurrencyTableViewCell
 
-        cell.currencyName.text = "name"
+        cell.currencyName.text = "EUR --> \(currenciesKeys[indexPath.row])"
+        cell.currencyValue.text = "\(currenciesValues[indexPath.row])"
 
         return cell
     }
