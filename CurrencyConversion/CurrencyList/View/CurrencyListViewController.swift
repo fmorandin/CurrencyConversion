@@ -13,7 +13,7 @@ class CurrencyListViewController: UIViewController {
 
     // MARK: - UI Elements
 
-    private lazy var appTitle: UILabel = {
+    private lazy var pageTitle: UILabel = {
         let element = UILabel()
         element.translatesAutoresizingMaskIntoConstraints = false
         element.isUserInteractionEnabled = false
@@ -84,14 +84,14 @@ class CurrencyListViewController: UIViewController {
     private func setupSubviews() {
 
         view.backgroundColor = .appColor(.backgroundColor)
-        appTitle.text = String(localized: "Currency Conversion")
+        pageTitle.text = String(localized: "Currency List")
 
         currenciesTableView.dataSource = self
         currenciesTableView.delegate = self
         currenciesTableView.translatesAutoresizingMaskIntoConstraints = false
         currenciesTableView.register(CurrencyTableViewCell.self, forCellReuseIdentifier: "currencyCell")
 
-        view.addSubview(appTitle)
+        view.addSubview(pageTitle)
         view.addSubview(separator)
         view.addSubview(currenciesTableView)
     }
@@ -99,11 +99,11 @@ class CurrencyListViewController: UIViewController {
     private func setupConstraints() {
 
         NSLayoutConstraint.activate([
-            appTitle.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 30),
-            appTitle.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 30),
+            pageTitle.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 30),
+            pageTitle.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 30),
 
             separator.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 10),
-            separator.topAnchor.constraint(equalTo: appTitle.bottomAnchor, constant: 15),
+            separator.topAnchor.constraint(equalTo: pageTitle.bottomAnchor, constant: 15),
             separator.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -10),
             separator.heightAnchor.constraint(equalToConstant: 1),
 
