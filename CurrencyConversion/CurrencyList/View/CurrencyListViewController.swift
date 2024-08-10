@@ -31,7 +31,14 @@ class CurrencyListViewController: UIViewController {
         return element
     }()
 
-    private lazy var currenciesTableView = UITableView(frame: view.bounds, style: .plain)
+    private lazy var currenciesTableView: UITableView = {
+        let element = UITableView(frame: view.bounds, style: .plain)
+        element.allowsSelection = false
+        element.dataSource = self
+        element.translatesAutoresizingMaskIntoConstraints = false
+        element.register(CurrencyTableViewCell.self, forCellReuseIdentifier: "currencyCell")
+        return element
+    }()
 
     // MARK: - Private Variables
 
@@ -85,11 +92,6 @@ class CurrencyListViewController: UIViewController {
 
         view.backgroundColor = .appColor(.backgroundColor)
         pageTitle.text = String(localized: "Currency List")
-
-        currenciesTableView.dataSource = self
-        currenciesTableView.delegate = self
-        currenciesTableView.translatesAutoresizingMaskIntoConstraints = false
-        currenciesTableView.register(CurrencyTableViewCell.self, forCellReuseIdentifier: "currencyCell")
 
         view.addSubview(pageTitle)
         view.addSubview(separator)
@@ -153,14 +155,5 @@ extension CurrencyListViewController: UITableViewDataSource {
         cell.currencyValue.text = "\(currenciesValues[indexPath.row])"
 
         return cell
-    }
-}
-
-// TableView Delegate
-extension CurrencyListViewController: UITableViewDelegate {
-
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-
-        print("select")
     }
 }

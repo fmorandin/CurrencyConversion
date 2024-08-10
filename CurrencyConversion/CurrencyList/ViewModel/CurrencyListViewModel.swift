@@ -52,6 +52,7 @@ final class CurrencyListViewModel: CurrencyListViewModelProtocol {
                     self?.logger.info("💶 Currency info received correctly")
                 }
             } receiveValue: { [weak self] currency in
+                UserDefaultsWrapper().save(values: Array(currency.rates.keys), for: .availableCurrencies)
                 self?.currencyDataPublisher.send(currency)
             }
             .store(in: &cancellable)
