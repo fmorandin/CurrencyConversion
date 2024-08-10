@@ -40,6 +40,25 @@
           }
         }
       }
+    },
+    "From" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De"
+          }
+        }
+      }
+    },
+    "Result" : {
+
+    },
+    "To" : {
+
+    },
+    "Total:" : {
+
     }
   },
   "version" : "1.0"

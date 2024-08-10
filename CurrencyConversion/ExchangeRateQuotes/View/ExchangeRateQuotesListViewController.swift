@@ -1,5 +1,5 @@
 //
-//  CurrencyListViewController.swift
+//  ExchangeRateQuotesListViewController.swift
 //  CurrencyConversion
 //
 //  Created by Felipe Morandin on 06/08/2024.
@@ -9,7 +9,7 @@ import UIKit
 import os
 import Combine
 
-class CurrencyListViewController: UIViewController {
+class ExchangeRateQuotesListViewController: UIViewController {
 
     // MARK: - UI Elements
 
@@ -20,6 +20,7 @@ class CurrencyListViewController: UIViewController {
         element.textAlignment = .left
         element.font = .monospacedSystemFont(ofSize: 30, weight: .bold)
         element.tintColor = .appColor(.accentColor)
+        element.text = String(localized: "Currency List")
         return element
     }()
 
@@ -36,7 +37,7 @@ class CurrencyListViewController: UIViewController {
         element.allowsSelection = false
         element.dataSource = self
         element.translatesAutoresizingMaskIntoConstraints = false
-        element.register(CurrencyTableViewCell.self, forCellReuseIdentifier: "currencyCell")
+        element.register(ExchangeRateQuotesTableViewCell.self, forCellReuseIdentifier: "currencyCell")
         return element
     }()
 
@@ -44,10 +45,10 @@ class CurrencyListViewController: UIViewController {
 
     private let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
-        category: String(describing: CurrencyListViewController.self)
+        category: String(describing: ExchangeRateQuotesListViewController.self)
     )
 
-    private let viewModel: CurrencyListViewModelProtocol
+    private let viewModel: ExchangeRateQuotesViewModelProtocol
 
     private var cancellables = Set<AnyCancellable>()
 
@@ -57,7 +58,7 @@ class CurrencyListViewController: UIViewController {
 
     // MARK: - Init
 
-    init(viewModel: CurrencyListViewModelProtocol = CurrencyListViewModel()) {
+    init(viewModel: ExchangeRateQuotesViewModelProtocol = ExchangeRateQuotesListViewModel()) {
 
         self.viewModel = viewModel
 
@@ -72,7 +73,7 @@ class CurrencyListViewController: UIViewController {
 
     override func viewWillAppear(_ animated: Bool) {
 
-        viewModel.fetchCurrencies()
+        viewModel.fetchExchangeRateQuotes()
     }
 
     override func viewDidLoad() {
@@ -91,7 +92,6 @@ class CurrencyListViewController: UIViewController {
     private func setupSubviews() {
 
         view.backgroundColor = .appColor(.backgroundColor)
-        pageTitle.text = String(localized: "Currency List")
 
         view.addSubview(pageTitle)
         view.addSubview(separator)
@@ -118,7 +118,7 @@ class CurrencyListViewController: UIViewController {
 
     private func setupObservers() {
 
-        viewModel.currencyDataPublisher.sink { [weak self] completion in
+        viewModel.exchangeRateQuotesDataPublisher.sink { [weak self] completion in
             switch completion {
             case .failure(let error):
                 self?.logger.error("\(error)")
@@ -142,14 +142,14 @@ class CurrencyListViewController: UIViewController {
 // MARK: - Extensions
 
 // TableView Datasource
-extension CurrencyListViewController: UITableViewDataSource {
+extension ExchangeRateQuotesListViewController: UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         currenciesRates.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = currenciesTableView.dequeueReusableCell(withIdentifier: "currencyCell", for: indexPath) as! CurrencyTableViewCell
+        let cell = currenciesTableView.dequeueReusableCell(withIdentifier: "currencyCell", for: indexPath) as! ExchangeRateQuotesTableViewCell
 
         cell.currencyName.text = "EUR --> \(currenciesKeys[indexPath.row])"
         cell.currencyValue.text = "\(currenciesValues[indexPath.row])"

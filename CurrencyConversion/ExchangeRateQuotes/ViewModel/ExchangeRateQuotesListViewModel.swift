@@ -9,41 +9,41 @@ import Foundation
 import os
 import Combine
 
-protocol CurrencyListViewModelProtocol {
+protocol ExchangeRateQuotesViewModelProtocol {
 
-    func fetchCurrencies()
-    var currencyDataPublisher: PassthroughSubject<CurrencyModel, Error> { get }
+    func fetchExchangeRateQuotes()
+    var exchangeRateQuotesDataPublisher: PassthroughSubject<ExchangeRateQuotesModel, Error> { get }
 }
 
-final class CurrencyListViewModel: CurrencyListViewModelProtocol {
+final class ExchangeRateQuotesListViewModel: ExchangeRateQuotesViewModelProtocol {
 
     // MARK: - Private Variables
 
-    private let service: CurrencyServiceProtocol
+    private let service: ExchangeRateQuotesServiceProtocol
 
     private let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
-        category: String(describing: CurrencyListViewModel.self)
+        category: String(describing: ExchangeRateQuotesListViewModel.self)
     )
 
     private var cancellable = Set<AnyCancellable>()
 
     // MARK: - Public Variables
 
-    var currencyDataPublisher = PassthroughSubject<CurrencyModel, Error>()
+    var exchangeRateQuotesDataPublisher = PassthroughSubject<ExchangeRateQuotesModel, Error>()
 
     // MARK: - Init
 
-    init(service: CurrencyServiceProtocol = CurrencyService()) {
+    init(service: ExchangeRateQuotesServiceProtocol = ExchangeRateQuotesService()) {
 
         self.service = service
     }
 
     // MARK: - Public Methods
 
-    func fetchCurrencies() {
+    func fetchExchangeRateQuotes() {
 
-        service.fetchCurrency()
+        service.fetchExchangeRateQuotes()
             .sink { [ weak self ] completion in
                 switch completion {
                 case .failure(let error):
@@ -53,7 +53,7 @@ final class CurrencyListViewModel: CurrencyListViewModelProtocol {
                 }
             } receiveValue: { [weak self] currency in
                 UserDefaultsWrapper().save(values: Array(currency.rates.keys), for: .availableCurrencies)
-                self?.currencyDataPublisher.send(currency)
+                self?.exchangeRateQuotesDataPublisher.send(currency)
             }
             .store(in: &cancellable)
     }

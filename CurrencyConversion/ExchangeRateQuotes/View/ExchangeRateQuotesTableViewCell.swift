@@ -1,5 +1,5 @@
 //
-//  CurrencyTableViewCell.swift
+//  ExchangeRateQuotesTableViewCell.swift
 //  CurrencyConversion
 //
 //  Created by Felipe Morandin on 06/08/2024.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class CurrencyTableViewCell: UITableViewCell {
+final class ExchangeRateQuotesTableViewCell: UITableViewCell {
 
     // MARK: - Public Variables
 

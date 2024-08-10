@@ -22,21 +22,22 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         let tabBar = UITabBarController()
 
-        let firstTab = UINavigationController(rootViewController: CurrencyListViewController())
+        let firstTab = UINavigationController(rootViewController: ExchangeRateQuotesListViewController())
         firstTab.tabBarItem = UITabBarItem(
             title: String(localized: "Currencies"),
             image: UIImage(systemName: "dollarsign.circle"),
             selectedImage: UIImage(systemName: "dollarsign.circle.fill")
         )
 
-        let secondTab = UINavigationController(rootViewController: ConversionViewController())
+        let secondTab = UINavigationController(rootViewController: CurrencyConversionViewController())
         secondTab.tabBarItem = UITabBarItem(
             title: String(localized: "Conversion"),
             image: UIImage(systemName: "arrow.up.right.and.arrow.down.left.rectangle"),
             selectedImage: UIImage(systemName: "arrow.up.right.and.arrow.down.left.rectangle.fill")
         )
 
-        tabBar.viewControllers = [firstTab, secondTab]
+        #warning("alterar")
+        tabBar.viewControllers = [secondTab, firstTab]
 
         window.rootViewController = tabBar
         self.window = window

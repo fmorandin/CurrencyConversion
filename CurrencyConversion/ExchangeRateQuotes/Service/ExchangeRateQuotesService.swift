@@ -1,5 +1,5 @@
 //
-//  CurrencyService.swift
+//  ExchangeRateQuotesService.swift
 //  CurrencyConversion
 //
 //  Created by Felipe Morandin on 06/08/2024.
@@ -9,11 +9,11 @@ import Foundation
 import os
 import Combine
 
-protocol CurrencyServiceProtocol {
-    func fetchCurrency() -> AnyPublisher<CurrencyModel, Error>
+protocol ExchangeRateQuotesServiceProtocol {
+    func fetchExchangeRateQuotes() -> AnyPublisher<ExchangeRateQuotesModel, Error>
 }
 
-struct CurrencyService: CurrencyServiceProtocol {
+struct ExchangeRateQuotesService: ExchangeRateQuotesServiceProtocol {
 
     // MARK: - Private Variables
 
@@ -21,7 +21,7 @@ struct CurrencyService: CurrencyServiceProtocol {
 
     private let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
-        category: String(describing: CurrencyService.self)
+        category: String(describing: ExchangeRateQuotesService.self)
     )
 
     // MARK: - Init
@@ -33,12 +33,10 @@ struct CurrencyService: CurrencyServiceProtocol {
 
     // MARK: - Public Methods
 
-    func fetchCurrency() -> AnyPublisher<CurrencyModel, Error> {
-
-        let stringURL = "https://api.frankfurter.app/latest"
+    func fetchExchangeRateQuotes() -> AnyPublisher<ExchangeRateQuotesModel, Error> {
 
         logger.notice("🛜 Starting to fetch the currency data.")
 
-        return networkManager.getData(for: stringURL, responseModel: CurrencyModel.self)
+        return networkManager.getData(for: Endpoints.latest.rawValue, responseModel: ExchangeRateQuotesModel.self)
     }
 }
