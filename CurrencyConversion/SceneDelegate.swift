@@ -36,8 +36,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             selectedImage: UIImage(systemName: "arrow.up.right.and.arrow.down.left.rectangle.fill")
         )
 
-        #warning("alterar")
-        tabBar.viewControllers = [secondTab, firstTab]
+        tabBar.viewControllers = [firstTab, secondTab]
 
         window.rootViewController = tabBar
         self.window = window
