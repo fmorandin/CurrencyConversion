@@ -62,7 +62,11 @@ final class CurrencyConversionViewModel: CurrencyConversionViewModelProtocol {
                         self?.logger.info("💶 List of available currencies received correctly")
                     }
                 } receiveValue: { [weak self] currencyList in
+
+                    // Save the received information in the cache and set the flag to true
+                    UserDefaultsWrapper().save(values: currencyList, for: UserDefaultsKeys.availableCurrencies)
                     UserDefaultsWrapper().save(value: true, for: UserDefaultsKeys.isCurrencyListFetched)
+                    
                     self?.currencyListDataPublisher.send(currencyList)
                 }
                 .store(in: &cancellable)

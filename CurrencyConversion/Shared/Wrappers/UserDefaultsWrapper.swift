@@ -32,7 +32,7 @@ struct UserDefaultsWrapper {
     func save(values: [String: String], for keyName: UserDefaultsKeys) {
 
         logger.notice("💾 Saving values \(String(describing: values)) for the key \(keyName.rawValue).")
-        defaults.set(values, forKey: keyName.rawValue)
+        defaults.set(object: values, forKey: keyName.rawValue)
     }
 
     func save(value: Bool, for keyName: UserDefaultsKeys) {
