@@ -46,18 +46,27 @@ final class CurrencyConversionViewModel: CurrencyConversionViewModelProtocol {
 
     func fetchCurrencyList() {
 
-        service.fetchAvailableCurrencyList()
-            .sink { [ weak self ] completion in
-                switch completion {
-                case .failure(let error):
-                    self?.logger.error("\(error)")
-                case .finished:
-                    self?.logger.info("💶 List of available currencies received correctly")
-                }
-            } receiveValue: { [weak self] currencyList in
-                self?.currencyListDataPublisher.send(currencyList)
+        // Here I check if the currency list was already fetched, if so, I return the information from the UserDefaults
+        // instead of doing another API request
+        if UserDefaultsWrapper().getValue(for: UserDefaultsKeys.isCurrencyListFetched) {
+            if let savedData = UserDefaultsWrapper().getValues(for: UserDefaultsKeys.availableCurrencies) {
+                self.currencyListDataPublisher.send(savedData)
             }
-            .store(in: &cancellable)
+        } else {
+            service.fetchAvailableCurrencyList()
+                .sink { [ weak self ] completion in
+                    switch completion {
+                    case .failure(let error):
+                        self?.logger.error("\(error)")
+                    case .finished:
+                        self?.logger.info("💶 List of available currencies received correctly")
+                    }
+                } receiveValue: { [weak self] currencyList in
+                    UserDefaultsWrapper().save(value: true, for: UserDefaultsKeys.isCurrencyListFetched)
+                    self?.currencyListDataPublisher.send(currencyList)
+                }
+                .store(in: &cancellable)
+        }
     }
 
     func performConversion(amount: String, from: String, to: String) {

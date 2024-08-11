@@ -11,6 +11,7 @@ import os
 enum UserDefaultsKeys: String {
 
     case availableCurrencies
+    case isCurrencyListFetched
 }
 
 struct UserDefaultsWrapper {
@@ -25,38 +26,51 @@ struct UserDefaultsWrapper {
 
     // MARK: - Public Methods
 
-    func save(values: [String], for keyName: UserDefaultsKeys) {
+    // By creating these functions I can use a descriptive name and create the necessary overloads for
+    // helping while saving and reading from UserDefaults
 
-        var stringToBeSaved = ""
-        var savedValues = getValues(for: keyName) ?? [String]()
+    func save(values: [String: String], for keyName: UserDefaultsKeys) {
 
-        for value in values {
-            if savedValues.contains(where: { $0 == value }) {
-                logger.notice("💾 Value \(String(describing: value)) was already saved. Nothing will be saved.")
-            } else {
-                savedValues.append(value)
-                stringToBeSaved = savedValues.joined(separator: ",")
-            }
-        }
-
-        if stringToBeSaved != "" {
-            logger.notice("💾 Saving value \(String(describing: stringToBeSaved)) for the key \(keyName.rawValue).")
-            defaults.setValue(stringToBeSaved, forKey: keyName.rawValue)
-        } else {
-            logger.notice("The string was empty, not saving.")
-        }
+        logger.notice("💾 Saving values \(String(describing: values)) for the key \(keyName.rawValue).")
+        defaults.set(values, forKey: keyName.rawValue)
     }
 
-    func getValues(for keyName: UserDefaultsKeys) -> [String]? {
+    func save(value: Bool, for keyName: UserDefaultsKeys) {
 
-        let savedString = defaults.string(forKey: keyName.rawValue) ?? ""
+        logger.notice("💾 Saving value \(value) for the key \(keyName.rawValue).")
+        defaults.setValue(value, forKey: keyName.rawValue)
+    }
 
-        logger.notice("📤 Getting value \(savedString) for the key \(keyName.rawValue).")
+    func getValues(for keyName: UserDefaultsKeys) -> [String: String]? {
 
-        let savedValues = savedString
-            .split(separator: ",")
-            .map { String($0).trimmingCharacters(in: .whitespacesAndNewlines) }
+        let savedDictionary = defaults.object([String: String].self, with: keyName.rawValue)
+        logger.notice("📤 Getting value \(String(describing: savedDictionary?.debugDescription)) for the key \(keyName.rawValue).")
+        return savedDictionary
+    }
 
-        return savedValues.sorted()
+    func getValue(for keyName: UserDefaultsKeys) -> Bool {
+
+        let savedBool = defaults.bool(forKey: keyName.rawValue)
+        logger.notice("📤 Getting value \(savedBool) for the key \(keyName.rawValue).")
+        return savedBool
+    }
+}
+
+// MARK: - Extension
+
+// This extension allows me to save and read a Dictionary from UserDefaults.
+// Since the Dictionary conforms to the codable protocol we can encode them and save it (or read it) to UserDefaults
+extension UserDefaults {
+    func object<T: Codable>(_ type: T.Type, with key: String, usingDecoder decoder: JSONDecoder = JSONDecoder()) -> T? {
+
+        guard let data = self.value(forKey: key) as? Data else { return nil }
+
+        return try? decoder.decode(type.self, from: data)
+    }
+
+    func set<T: Codable>(object: T, forKey key: String, usingEncoder encoder: JSONEncoder = JSONEncoder()) {
+
+        let data = try? encoder.encode(object)
+        self.set(data, forKey: key)
     }
 }

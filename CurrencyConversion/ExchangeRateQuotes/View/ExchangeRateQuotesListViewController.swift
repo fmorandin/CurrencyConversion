@@ -149,8 +149,13 @@ extension ExchangeRateQuotesListViewController: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = currenciesTableView.dequeueReusableCell(withIdentifier: "currencyCell", for: indexPath) as! ExchangeRateQuotesTableViewCell
+        let cell = currenciesTableView.dequeueReusableCell(
+            withIdentifier: "currencyCell",
+            for: indexPath) as! ExchangeRateQuotesTableViewCell
 
+        // As an improvement, the user could select the base currency while doing the search, if that improvement was
+        // developed, this line would have to be changed as well to display the base from the API request instead of
+        // a hardcoded text
         cell.currencyName.text = "EUR --> \(currenciesKeys[indexPath.row])"
         cell.currencyValue.text = "\(currenciesValues[indexPath.row])"
 

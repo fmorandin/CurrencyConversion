@@ -7,6 +7,7 @@
 
 import Foundation
 
+// This model is shared with the currency converter so, ideally, it would be moved to a more generic place
 struct ExchangeRateQuotesModel: Codable {
 
     let base: String

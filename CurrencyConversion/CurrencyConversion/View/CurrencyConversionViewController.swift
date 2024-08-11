@@ -126,6 +126,8 @@ class CurrencyConversionViewController: UIViewController {
         category: String(describing: CurrencyConversionViewController.self)
     )
 
+    // The variables and the closures related with the from and to were necessary in order to implement the UIMenu
+    // and use it instead of doing the dropdown using table views or an external component
     private var fromValue: String = ""
     private lazy var actionClosureFrom = { [weak self] (action: UIAction) in
 
@@ -288,6 +290,9 @@ class CurrencyConversionViewController: UIViewController {
 
     }
 
+    // This is the function that actually creates the `dropdown` for the currencies.
+    // Since UIKit doesn't have a native component for that we need to either implement a custom solution
+    // or use an external component for that. In my case, I used this solution that I thought that fits better in the app
     private func configureDropdown(button: inout UIButton, handler: @escaping (UIAction) -> ()) {
 
         var menuChildren = [UIMenuElement]()
