@@ -30,6 +30,8 @@ struct NetworkManager: NetworkManagerProtocol {
         category: String(describing: NetworkManager.self)
     )
 
+    private var cancellable = Set<AnyCancellable>()
+
     // MARK: - Public Methods
 
     func getData<T: Decodable>(for urlString: String, responseModel: T.Type) -> AnyPublisher<T, Error> {
@@ -44,6 +46,7 @@ struct NetworkManager: NetworkManagerProtocol {
             }
             .map { $0.data }
             .decode(type: responseModel.self, decoder: JSONDecoder())
+            .receive(on: RunLoop.main)
             .eraseToAnyPublisher()
     }
 }
