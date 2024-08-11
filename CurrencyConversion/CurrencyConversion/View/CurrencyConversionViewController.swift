@@ -7,6 +7,7 @@
 
 import UIKit
 import os
+import Combine
 
 class CurrencyConversionViewController: UIViewController {
 
@@ -38,7 +39,7 @@ class CurrencyConversionViewController: UIViewController {
         element.textAlignment = .left
         element.font = .preferredFont(forTextStyle: .callout)
         element.tintColor = .appColor(.accentColor)
-        element.text = String(localized: "From")
+        element.text = String(localized: "From:")
         return element
     }()
 
@@ -55,13 +56,34 @@ class CurrencyConversionViewController: UIViewController {
         element.textAlignment = .left
         element.font = .preferredFont(forTextStyle: .callout)
         element.tintColor = .appColor(.accentColor)
-        element.text = String(localized: "To")
+        element.text = String(localized: "To:")
         return element
     }()
 
     private lazy var toButton: UIButton = {
         let element = UIButton(configuration: .plain())
         element.translatesAutoresizingMaskIntoConstraints = false
+        return element
+    }()
+
+    private lazy var amountLabel: UILabel = {
+        let element = UILabel()
+        element.translatesAutoresizingMaskIntoConstraints = false
+        element.isUserInteractionEnabled = false
+        element.textAlignment = .left
+        element.font = .preferredFont(forTextStyle: .callout)
+        element.tintColor = .appColor(.accentColor)
+        element.text = String(localized: "Amount:")
+        return element
+    }()
+
+    private lazy var amountTextField: UITextField = {
+        let element = UITextField()
+        element.translatesAutoresizingMaskIntoConstraints = false
+        element.placeholder = String(localized: "Amount to be converted")
+        element.keyboardType = .decimalPad
+        element.borderStyle = .roundedRect
+        element.delegate = self
         return element
     }()
 
@@ -108,13 +130,42 @@ class CurrencyConversionViewController: UIViewController {
         self.logger.info("🏧 To value: \(self.toValue)")
     }
 
+    private var amountValue: String = ""
+
+    private var cancellables = Set<AnyCancellable>()
+
+    private let viewModel: CurrencyConversionViewModelProtocol
+    private var currencyList = [String: String]()
+
+    // MARK: - Init
+
+    init(viewModel: CurrencyConversionViewModelProtocol = CurrencyConversionViewModel()) {
+
+        self.viewModel = viewModel
+
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
     // MARK: - View Lifecycle
+
+    override func viewWillAppear(_ animated: Bool) {
+
+        viewModel.fetchCurrencyList()
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        setupGestureRecognizer()
+
         setupSubviews()
         setupConstraints()
+
+        setupObservers()
 
         view.backgroundColor = .appColor(.backgroundColor)
     }
@@ -129,12 +180,13 @@ class CurrencyConversionViewController: UIViewController {
         view.addSubview(separator)
         
         view.addSubview(fromLabel)
-        configureDropdown(button: &fromButton, handler: actionClosureFrom)
         view.addSubview(fromButton)
 
         view.addSubview(toLabel)
-        configureDropdown(button: &toButton, handler: actionClosureTo)
         view.addSubview(toButton)
+
+        view.addSubview(amountLabel)
+        view.addSubview(amountTextField)
 
         view.addSubview(totalTitleLabel)
         view.addSubview(totalLabel)
@@ -153,28 +205,56 @@ class CurrencyConversionViewController: UIViewController {
 
             fromLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 30),
             fromLabel.topAnchor.constraint(equalTo: separator.bottomAnchor, constant: 30),
-            fromButton.leadingAnchor.constraint(equalTo: fromLabel.trailingAnchor, constant: 15),
+            fromButton.leadingAnchor.constraint(equalTo: fromLabel.trailingAnchor, constant: 40),
             fromButton.centerYAnchor.constraint(equalTo: fromLabel.centerYAnchor),
 
             toLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 30),
             toLabel.topAnchor.constraint(equalTo: fromLabel.bottomAnchor, constant: 30),
-            toButton.leadingAnchor.constraint(equalTo: toLabel.trailingAnchor, constant: 15),
+            toButton.leadingAnchor.constraint(equalTo: fromButton.leadingAnchor),
             toButton.centerYAnchor.constraint(equalTo: toLabel.centerYAnchor),
 
-            totalTitleLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 30),
-            totalTitleLabel.topAnchor.constraint(equalTo: toLabel.bottomAnchor, constant: 30),
+            amountLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 30),
+            amountLabel.topAnchor.constraint(equalTo: toLabel.bottomAnchor, constant: 30),
+            amountTextField.leadingAnchor.constraint(equalTo: fromButton.leadingAnchor, constant: 10),
+            amountTextField.centerYAnchor.constraint(equalTo: amountLabel.centerYAnchor),
 
-            totalLabel.leadingAnchor.constraint(equalTo: totalTitleLabel.trailingAnchor, constant: 20),
+            totalTitleLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 30),
+            totalTitleLabel.topAnchor.constraint(equalTo: amountLabel.bottomAnchor, constant: 30),
+
+            totalLabel.leadingAnchor.constraint(equalTo: fromButton.leadingAnchor, constant: 10),
             totalLabel.centerYAnchor.constraint(equalTo: totalTitleLabel.centerYAnchor),
         ])
+    }
+
+    private func setupObservers() {
+
+        viewModel.currencyListDataPublisher.sink { [weak self] completion in
+            switch completion {
+            case .failure(let error):
+                self?.logger.error("\(error)")
+            case .finished:
+                self?.logger.info("💶 Available currency list info received correctly from ViewModel")
+            }
+        } receiveValue: { [weak self] currencyList in
+            guard let self else { return }
+            self.currencyList = currencyList
+
+            DispatchQueue.main.async { [weak self] in
+                guard let self else { return }
+                self.configureDropdown(button: &self.fromButton, handler: self.actionClosureFrom)
+                self.configureDropdown(button: &self.toButton, handler: self.actionClosureTo)
+            }
+
+        }
+        .store(in: &cancellables)
+
     }
 
     private func configureDropdown(button: inout UIButton, handler: @escaping (UIAction) -> ()) {
 
         var menuChildren: [UIMenuElement] = []
-        let dataSource = UserDefaultsWrapper().getValues(for: .availableCurrencies) ?? []
-        for currency in dataSource {
-            menuChildren.append(UIAction(title: currency, handler: handler))
+        for (currency, name) in currencyList {
+            menuChildren.append(UIAction(title: "\(currency) - \(name)", handler: handler))
         }
 
         button.menu = UIMenu(options: .displayInline, children: menuChildren)
@@ -182,5 +262,36 @@ class CurrencyConversionViewController: UIViewController {
         button.showsMenuAsPrimaryAction = true
         button.changesSelectionAsPrimaryAction = true
     }
+
+    private func setupGestureRecognizer() {
+
+        // Add a gesture recognizer to hide the keyboard
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(hideKeyboard))
+        view.addGestureRecognizer(tapGesture)
+        tapGesture.cancelsTouchesInView = false
+    }
+
+    // MARK: - Objc Methods
+
+    @objc private func hideKeyboard() {
+
+        logger.notice("⌨️ User tapped outside the keyboard area")
+
+        view.endEditing(true)
+    }
 }
 
+// MARK: - Extensions
+
+// TextField Delegate
+extension CurrencyConversionViewController: UITextFieldDelegate {
+
+    func textFieldDidEndEditing(_ textField: UITextField) {
+
+        // Check if the text is empty, if so don't save the amount
+        guard let text = textField.text else { return }
+
+        amountValue = text
+        logger.notice("⌨️ Value \(self.amountValue) entered")
+    }
+}

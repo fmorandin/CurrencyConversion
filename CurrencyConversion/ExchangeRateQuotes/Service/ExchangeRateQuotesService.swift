@@ -10,6 +10,7 @@ import os
 import Combine
 
 protocol ExchangeRateQuotesServiceProtocol {
+
     func fetchExchangeRateQuotes() -> AnyPublisher<ExchangeRateQuotesModel, Error>
 }
 
@@ -35,7 +36,7 @@ struct ExchangeRateQuotesService: ExchangeRateQuotesServiceProtocol {
 
     func fetchExchangeRateQuotes() -> AnyPublisher<ExchangeRateQuotesModel, Error> {
 
-        logger.notice("🛜 Starting to fetch the currency data.")
+        logger.notice("🛜 Starting to fetch the exchange rate quotes data.")
 
         return networkManager.getData(for: Endpoints.latest.rawValue, responseModel: ExchangeRateQuotesModel.self)
     }

@@ -11,6 +11,7 @@ import Combine
 
 // Protocol to make it easier to test
 protocol NetworkManagerProtocol {
+
     func getData<T: Decodable>(for urlString: String, responseModel: T.Type) -> AnyPublisher<T, Error>
 }
 

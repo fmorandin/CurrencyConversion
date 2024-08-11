@@ -1,6 +1,26 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "Amount to be converted" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Valor a ser convertido"
+          }
+        }
+      }
+    },
+    "Amount:" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Valor:"
+          }
+        }
+      }
+    },
     "Conversion" : {
       "localizations" : {
         "pt-BR" : {
@@ -41,24 +61,45 @@
         }
       }
     },
-    "From" : {
+    "From:" : {
       "localizations" : {
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "De"
+            "value" : "De:"
           }
         }
       }
     },
     "Result" : {
-
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Resultado"
+          }
+        }
+      }
     },
-    "To" : {
-
+    "To:" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Para:"
+          }
+        }
+      }
     },
     "Total:" : {
-
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Total:"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"
