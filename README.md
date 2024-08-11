@@ -36,7 +36,9 @@ As a path forward for the app, some improvements could be added such as:
 - Implement some proper error handling
 - Adapt the layout for other platforms such as iPadOS
 - Update the network layer to use Async/Await
+- In the first screen, sort the items alphabetically
 
 ### Side Notes
 During the implementation a board in the Apple Reminders was created to track the tasks (the tasks are written in Portuguese) and this is its current state
-<img width="881" alt="Captura de ecrã 2024-08-11, às 17 35 52" src="https://github.com/user-attachments/assets/9aaae8f1-2f78-4088-afcb-90a142773114">
+
+<img width="879" alt="Captura de ecrã 2024-08-11, às 17 47 43" src="https://github.com/user-attachments/assets/a2144ce2-75b4-4629-8f0c-b35b0c4e4159">
