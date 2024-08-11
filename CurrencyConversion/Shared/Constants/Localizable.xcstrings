@@ -31,6 +31,16 @@
         }
       }
     },
+    "Convert" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Converter"
+          }
+        }
+      }
+    },
     "Currencies" : {
       "localizations" : {
         "pt-BR" : {

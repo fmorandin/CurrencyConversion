@@ -13,6 +13,8 @@ protocol CurrencyConversionViewModelProtocol {
 
     func fetchCurrencyList()
     var currencyListDataPublisher: PassthroughSubject<[String: String], Error> { get }
+    func performConversion(amount: String, from: String, to: String)
+    var currencyConversionDataPublisher: PassthroughSubject<ExchangeRateQuotesModel, Error> { get }
 }
 
 final class CurrencyConversionViewModel: CurrencyConversionViewModelProtocol {
@@ -31,6 +33,7 @@ final class CurrencyConversionViewModel: CurrencyConversionViewModelProtocol {
     // MARK: - Public Variables
 
     var currencyListDataPublisher = PassthroughSubject<[String: String], Error>()
+    var currencyConversionDataPublisher = PassthroughSubject<ExchangeRateQuotesModel, Error>()
 
     // MARK: - Init
 
@@ -53,6 +56,22 @@ final class CurrencyConversionViewModel: CurrencyConversionViewModelProtocol {
                 }
             } receiveValue: { [weak self] currencyList in
                 self?.currencyListDataPublisher.send(currencyList)
+            }
+            .store(in: &cancellable)
+    }
+
+    func performConversion(amount: String, from: String, to: String) {
+
+        service.performCurrencyConversion(amount: amount, from: from, to: to)
+            .sink { [ weak self ] completion in
+                switch completion {
+                case .failure(let error):
+                    self?.logger.error("\(error)")
+                case .finished:
+                    self?.logger.info("💶 Currency converted information received correctly")
+                }
+            } receiveValue: { [weak self] currencyConverted in
+                self?.currencyConversionDataPublisher.send(currencyConverted)
             }
             .store(in: &cancellable)
     }

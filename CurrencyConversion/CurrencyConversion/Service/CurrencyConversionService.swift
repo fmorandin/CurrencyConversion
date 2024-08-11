@@ -12,6 +12,7 @@ import os
 protocol CurrencyConversionServiceProtocol {
 
     func fetchAvailableCurrencyList() -> AnyPublisher<[String: String], Error>
+    func performCurrencyConversion(amount: String, from: String, to: String) -> AnyPublisher<ExchangeRateQuotesModel, Error>
 }
 
 struct CurrencyConversionService: CurrencyConversionServiceProtocol {
@@ -39,5 +40,14 @@ struct CurrencyConversionService: CurrencyConversionServiceProtocol {
         logger.notice("🛜 Starting to fetch the list currencies data.")
 
         return networkManager.getData(for: Endpoints.currencies.rawValue, responseModel: [String: String].self)
+    }
+
+    func performCurrencyConversion(amount: String, from: String, to: String) -> AnyPublisher<ExchangeRateQuotesModel, Error> {
+
+        logger.notice("🛜 Starting to perform the currency conversion.")
+
+        let stringURL = "\(Endpoints.latest.rawValue)?amount=\(amount)&from=\(from)&to=\(to)"
+
+        return networkManager.getData(for: stringURL, responseModel: ExchangeRateQuotesModel.self)
     }
 }

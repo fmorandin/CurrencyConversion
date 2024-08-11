@@ -87,12 +87,22 @@ class CurrencyConversionViewController: UIViewController {
         return element
     }()
 
+    private lazy var convertButton: UIButton = {
+        let element = UIButton(configuration: .borderedProminent())
+        element.translatesAutoresizingMaskIntoConstraints = false
+        element.setTitle(String(localized: "Convert"), for: .normal)
+        element.addTarget(self, action: #selector(performConversion), for: .touchUpInside)
+        element.tintColor = .appColor(.accentColor)
+        element.setTitleColor(.appColor(.backgroundColor), for: .normal)
+        return element
+    }()
+
     private lazy var totalTitleLabel: UILabel = {
         let element = UILabel()
         element.translatesAutoresizingMaskIntoConstraints = false
         element.isUserInteractionEnabled = false
         element.textAlignment = .left
-        element.font = .preferredFont(forTextStyle: .title2)
+        element.font = .preferredFont(forTextStyle: .title1)
         element.tintColor = .appColor(.accentColor)
         element.text = String(localized: "Total:")
         return element
@@ -103,7 +113,7 @@ class CurrencyConversionViewController: UIViewController {
         element.translatesAutoresizingMaskIntoConstraints = false
         element.isUserInteractionEnabled = false
         element.textAlignment = .left
-        element.font = .preferredFont(forTextStyle: .body)
+        element.font = .preferredFont(forTextStyle: .title1)
         element.tintColor = .appColor(.accentColor)
         element.text = String(localized: "Result")
         return element
@@ -118,15 +128,21 @@ class CurrencyConversionViewController: UIViewController {
 
     private var fromValue: String = ""
     private lazy var actionClosureFrom = { [weak self] (action: UIAction) in
-        guard let self else { return }
-        self.fromValue = action.title
+
+        guard let self,
+              let currency = action.title.split(separator: "-").first else { return }
+
+        self.fromValue = currency.trimmingCharacters(in: .whitespacesAndNewlines)
         self.logger.info("🏧 From value: \(self.fromValue)")
     }
 
     private var toValue: String = ""
     private lazy var actionClosureTo = { [weak self] (action: UIAction) in
-        guard let self else { return }
-        self.toValue = action.title
+
+        guard let self,
+              let currency = action.title.split(separator: "-").first else { return }
+
+        self.toValue = currency.trimmingCharacters(in: .whitespacesAndNewlines)
         self.logger.info("🏧 To value: \(self.toValue)")
     }
 
@@ -188,6 +204,8 @@ class CurrencyConversionViewController: UIViewController {
         view.addSubview(amountLabel)
         view.addSubview(amountTextField)
 
+        view.addSubview(convertButton)
+
         view.addSubview(totalTitleLabel)
         view.addSubview(totalLabel)
     }
@@ -218,8 +236,11 @@ class CurrencyConversionViewController: UIViewController {
             amountTextField.leadingAnchor.constraint(equalTo: fromButton.leadingAnchor, constant: 10),
             amountTextField.centerYAnchor.constraint(equalTo: amountLabel.centerYAnchor),
 
+            convertButton.topAnchor.constraint(equalTo: amountLabel.bottomAnchor, constant: 30),
+            convertButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
+
             totalTitleLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 30),
-            totalTitleLabel.topAnchor.constraint(equalTo: amountLabel.bottomAnchor, constant: 30),
+            totalTitleLabel.topAnchor.constraint(equalTo: convertButton.bottomAnchor, constant: 30),
 
             totalLabel.leadingAnchor.constraint(equalTo: fromButton.leadingAnchor, constant: 10),
             totalLabel.centerYAnchor.constraint(equalTo: totalTitleLabel.centerYAnchor),
@@ -245,6 +266,23 @@ class CurrencyConversionViewController: UIViewController {
                 self.configureDropdown(button: &self.toButton, handler: self.actionClosureTo)
             }
 
+        }
+        .store(in: &cancellables)
+
+        viewModel.currencyConversionDataPublisher.sink { [weak self] completion in
+            switch completion {
+            case .failure(let error):
+                self?.logger.error("\(error)")
+            case .finished:
+                self?.logger.info("💶 Available currency list info received correctly from ViewModel")
+            }
+        } receiveValue: { [weak self] currencyConverted in
+            guard let self else { return }
+
+            DispatchQueue.main.async { [weak self] in
+                guard let self else { return }
+                self.totalLabel.text = "\(currencyConverted.rates[self.toValue] ?? 0)"
+            }
         }
         .store(in: &cancellables)
 
@@ -278,6 +316,13 @@ class CurrencyConversionViewController: UIViewController {
         logger.notice("⌨️ User tapped outside the keyboard area")
 
         view.endEditing(true)
+    }
+
+    @objc private func performConversion() {
+
+        logger.info("🔄 Converting \(self.amountValue) from \(self.fromValue) to \(self.toValue)")
+
+        viewModel.performConversion(amount: amountValue, from: fromValue, to: toValue)
     }
 }
 
