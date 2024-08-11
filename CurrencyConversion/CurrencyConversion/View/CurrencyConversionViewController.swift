@@ -102,7 +102,7 @@ class CurrencyConversionViewController: UIViewController {
         element.translatesAutoresizingMaskIntoConstraints = false
         element.isUserInteractionEnabled = false
         element.textAlignment = .left
-        element.font = .preferredFont(forTextStyle: .title1)
+        element.font = .preferredFont(forTextStyle: .title3)
         element.tintColor = .appColor(.accentColor)
         element.text = String(localized: "Total:")
         return element
@@ -113,7 +113,7 @@ class CurrencyConversionViewController: UIViewController {
         element.translatesAutoresizingMaskIntoConstraints = false
         element.isUserInteractionEnabled = false
         element.textAlignment = .left
-        element.font = .preferredFont(forTextStyle: .title1)
+        element.font = .preferredFont(forTextStyle: .headline)
         element.tintColor = .appColor(.accentColor)
         element.text = String(localized: "Result")
         return element
@@ -196,15 +196,15 @@ class CurrencyConversionViewController: UIViewController {
 
         view.addSubview(pageTitle)
         view.addSubview(separator)
-        
+
+        view.addSubview(amountLabel)
+        view.addSubview(amountTextField)
+
         view.addSubview(fromLabel)
         view.addSubview(fromButton)
 
         view.addSubview(toLabel)
         view.addSubview(toButton)
-
-        view.addSubview(amountLabel)
-        view.addSubview(amountTextField)
 
         view.addSubview(convertButton)
 
@@ -223,28 +223,28 @@ class CurrencyConversionViewController: UIViewController {
             separator.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -10),
             separator.heightAnchor.constraint(equalToConstant: 1),
 
+            amountLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 30),
+            amountLabel.topAnchor.constraint(equalTo: separator.bottomAnchor, constant: 30),
+            amountTextField.leadingAnchor.constraint(equalTo: amountLabel.trailingAnchor, constant: 20),
+            amountTextField.centerYAnchor.constraint(equalTo: amountLabel.centerYAnchor),
+
             fromLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 30),
-            fromLabel.topAnchor.constraint(equalTo: separator.bottomAnchor, constant: 30),
-            fromButton.leadingAnchor.constraint(equalTo: fromLabel.trailingAnchor, constant: 40),
+            fromLabel.topAnchor.constraint(equalTo: amountLabel.bottomAnchor, constant: 30),
+            fromButton.leadingAnchor.constraint(equalTo: amountTextField.leadingAnchor),
             fromButton.centerYAnchor.constraint(equalTo: fromLabel.centerYAnchor),
 
             toLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 30),
             toLabel.topAnchor.constraint(equalTo: fromLabel.bottomAnchor, constant: 30),
-            toButton.leadingAnchor.constraint(equalTo: fromButton.leadingAnchor),
+            toButton.leadingAnchor.constraint(equalTo: amountTextField.leadingAnchor),
             toButton.centerYAnchor.constraint(equalTo: toLabel.centerYAnchor),
 
-            amountLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 30),
-            amountLabel.topAnchor.constraint(equalTo: toLabel.bottomAnchor, constant: 30),
-            amountTextField.leadingAnchor.constraint(equalTo: fromButton.leadingAnchor, constant: 10),
-            amountTextField.centerYAnchor.constraint(equalTo: amountLabel.centerYAnchor),
-
-            convertButton.topAnchor.constraint(equalTo: amountLabel.bottomAnchor, constant: 30),
+            convertButton.topAnchor.constraint(equalTo: toLabel.bottomAnchor, constant: 30),
             convertButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
 
             totalTitleLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 30),
             totalTitleLabel.topAnchor.constraint(equalTo: convertButton.bottomAnchor, constant: 30),
 
-            totalLabel.leadingAnchor.constraint(equalTo: fromButton.leadingAnchor, constant: 10),
+            totalLabel.leadingAnchor.constraint(equalTo: totalTitleLabel.trailingAnchor, constant: 10),
             totalLabel.centerYAnchor.constraint(equalTo: totalTitleLabel.centerYAnchor),
         ])
     }
@@ -283,7 +283,7 @@ class CurrencyConversionViewController: UIViewController {
 
             DispatchQueue.main.async { [weak self] in
                 guard let self else { return }
-                self.totalLabel.text = "\(currencyConverted.rates[self.toValue] ?? 0)"
+                self.totalLabel.text = "\(self.amountValue)\(self.fromValue) \(String(localized: "is equal to")) \(currencyConverted.rates[self.toValue] ?? 0)\(self.toValue)"
             }
         }
         .store(in: &cancellables)

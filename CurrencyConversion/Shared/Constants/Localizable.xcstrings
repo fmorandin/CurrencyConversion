@@ -81,6 +81,16 @@
         }
       }
     },
+    "is equal to" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "é igual a"
+          }
+        }
+      }
+    },
     "Result" : {
       "localizations" : {
         "pt-BR" : {
