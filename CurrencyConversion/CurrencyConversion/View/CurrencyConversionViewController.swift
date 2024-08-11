@@ -44,7 +44,7 @@ class CurrencyConversionViewController: UIViewController {
     }()
 
     private lazy var fromButton: UIButton = {
-        let element = UIButton(configuration: .plain())
+        let element = UIButton(configuration: .gray())
         element.translatesAutoresizingMaskIntoConstraints = false
         return element
     }()
@@ -61,7 +61,7 @@ class CurrencyConversionViewController: UIViewController {
     }()
 
     private lazy var toButton: UIButton = {
-        let element = UIButton(configuration: .plain())
+        let element = UIButton(configuration: .gray())
         element.translatesAutoresizingMaskIntoConstraints = false
         return element
     }()
@@ -290,12 +290,14 @@ class CurrencyConversionViewController: UIViewController {
 
     private func configureDropdown(button: inout UIButton, handler: @escaping (UIAction) -> ()) {
 
-        var menuChildren: [UIMenuElement] = []
-        for (currency, name) in currencyList {
+        var menuChildren = [UIMenuElement]()
+        fromValue = currencyList.first?.key ?? ""
+        toValue = currencyList.first?.key ?? ""
+        for (currency, name) in currencyList.sorted(by: { $0.key < $1.key }) {
             menuChildren.append(UIAction(title: "\(currency) - \(name)", handler: handler))
         }
 
-        button.menu = UIMenu(options: .displayInline, children: menuChildren)
+        button.menu = UIMenu(options: .singleSelection, children: menuChildren)
 
         button.showsMenuAsPrimaryAction = true
         button.changesSelectionAsPrimaryAction = true
