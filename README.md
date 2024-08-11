@@ -9,6 +9,7 @@ two currencies.
 - And the architecture is [_MVVM_](https://en.wikipedia.org/wiki/Model–view–viewmodel)
 - There are not external dependencies
 - A very basic and simple cache is being done using [_UserDefaults_](https://developer.apple.com/documentation/foundation/userdefaults)
+  - This is for the list of available currencies in the calculator screen 
 - Unit tests are created using [_XCTest_](https://developer.apple.com/documentation/xctest) framework
 - The data is provided by [Frankfurter](https://www.frankfurter.app)
 - The network layer was implemented using [_Combine_](https://developer.apple.com/documentation/combine)
